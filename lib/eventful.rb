@@ -38,7 +38,7 @@ module Eventful
   
   def on(event, &block)
     observer = add_observer do |*args|
-      type, data = args.first, [self] + args[1..-1]
+      type, data = args[1], [args[0]] + args[2..-1]
       if type == event
         block ||= observer.to_proc
         block.call(*data)
@@ -48,10 +48,25 @@ module Eventful
   
   def fire(*args)
     return if defined?(@observer_state) and not @observer_state
+    
+    receiver = (Hash === args.first) ? args.shift[:receiver] : self
+    args = [receiver] + args
+    
     changed(true)
     notify_observers(*args)
     changed(true)
+    
+    args[0] = {:receiver => receiver}
+    self.class.ancestors.each do |klass|
+      klass.fire(*args) if Eventful === klass
+    end
   end
+  
+  def self.included(base)
+    base.extend(self)
+  end
+  
+  extend(self)
   
 end
 

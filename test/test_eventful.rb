@@ -1,5 +1,6 @@
 require "test/unit"
 require "eventful"
+require "set"
 
 class Foo
   include Eventful
@@ -12,6 +13,10 @@ class Foo
   def bump!(x = 1)
     @count += x
   end
+end
+
+class Bar
+  include Eventful
 end
 
 class TestEventful < Test::Unit::TestCase
@@ -43,5 +48,18 @@ class TestEventful < Test::Unit::TestCase
     f.fire(:noe)
     
     assert_equal 3, f.count
+  end
+  
+  def test_bubbling
+    bar1, bar2 = Bar.new, Bar.new
+    list = []
+    Bar.on(:aye) { |r| list << r }
+    Eventful.on(:aye) { |r| list << r }
+    Eventful.on(:noe) { |r| list << r }
+    
+    bar1.fire(:aye)
+    assert_equal  [bar1, bar1], list
+    bar2.fire(:noe)
+    assert_equal  [bar1, bar1, bar2], list
   end
 end
