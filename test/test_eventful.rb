@@ -20,6 +20,10 @@ class Bar
 end
 
 class TestEventful < Test::Unit::TestCase
+  def setup
+    [Foo, Bar, Eventful].each &it.delete_observers
+  end
+  
   def test_named_events
     ayes, noes = 0, 0
     f = Foo.new
@@ -66,5 +70,16 @@ class TestEventful < Test::Unit::TestCase
     assert_equal  [bar1, bar1, bar2, Bar], list
     Bar.fire(:noe)
     assert_equal  [bar1, bar1, bar2, Bar], list
+  end
+  
+  def test_chaining_on_bubble
+    f1, f2 = Foo.new, Foo.new
+    Foo.on(:aye).bump! 5
+    f1.fire(:aye)
+    assert_equal 5, f1.count
+    assert_equal 0, f2.count
+    f2.fire(:aye)
+    assert_equal 5, f1.count
+    assert_equal 5, f2.count
   end
 end
