@@ -78,7 +78,7 @@ module Eventful
   # system so that you can listen to all objects of a given type by regsitering
   # listeners on their class.
   def fire(*args)
-    return if defined?(@observer_state) and not @observer_state
+    return self if defined?(@observer_state) and not @observer_state
     
     receiver = (Hash === args.first) ? args.shift[:receiver] : self
     args = [receiver] + args
@@ -89,6 +89,8 @@ module Eventful
     
     args[0] = {:receiver => receiver}
     self.class.ancestors.grep(Eventful).each &it.fire(*args)
+    
+    self
   end
   
   # Classes that +include+ +Eventful+ are also extended with it, so that event
