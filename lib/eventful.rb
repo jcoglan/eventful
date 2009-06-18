@@ -57,9 +57,7 @@ module Eventful
     changed(true)
     
     args[0] = {:receiver => receiver}
-    self.class.ancestors.each do |klass|
-      klass.fire(*args) if Eventful === klass
-    end
+    self.class.ancestors.grep(Eventful).each &it.fire(*args)
   end
   
   def self.included(base)
