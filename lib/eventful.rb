@@ -1,15 +1,23 @@
 require 'observer'
+require 'rubygems'
+require 'methodphitamine'
 
 module Eventful
   VERSION = '0.9.0'
   
-  class Observer
+  class Observer < Methodphitamine::It
     def initialize(&block)
+      super()
       @block = block
     end
     
     def update(*args)
       @block.call(*args)
+    end
+    
+    # Patch this back in after Methodphitamine removes it
+    def respond_to?(*args)
+      Object.instance_method(:respond_to?).bind(self).call(*args)
     end
   end
   
@@ -27,9 +35,12 @@ module Eventful
   include ObservableWithBlocks
   
   def on(event, &block)
-    add_observer do |*args|
+    observer = add_observer do |*args|
       type, data = args.first, [self] + args[1..-1]
-      block.call(*data) if type == event
+      if type == event
+        block ||= observer.to_proc
+        block.call(*data)
+      end
     end
   end
   

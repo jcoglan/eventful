@@ -6,6 +6,7 @@ require 'hoe'
 Hoe.spec 'eventful' do |p|
   # self.rubyforge_name = 'eventfulx' # if different than 'eventful'
   p.developer('James Coglan', 'jcoglan@googlemail.com')
+  p.extra_deps = %w[methodphitamine]
 end
 
 # vim: syntax=ruby
