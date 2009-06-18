@@ -15,9 +15,11 @@ module Eventful
       @block.call(*args)
     end
     
-    # Patch this back in after Methodphitamine removes it
-    def respond_to?(*args)
-      Object.instance_method(:respond_to?).bind(self).call(*args)
+    # Patch these back in after Methodphitamine removes them
+    %w[respond_to? hash send].each do |sym|
+      define_method(sym) do |*args|
+        Object.instance_method(sym).bind(self).call(*args)
+      end
     end
   end
   
