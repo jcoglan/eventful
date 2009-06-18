@@ -61,5 +61,10 @@ class TestEventful < Test::Unit::TestCase
     assert_equal  [bar1, bar1], list
     bar2.fire(:noe)
     assert_equal  [bar1, bar1, bar2], list
+    
+    Bar.fire(:aye)
+    assert_equal  [bar1, bar1, bar2, Bar], list
+    Bar.fire(:noe)
+    assert_equal  [bar1, bar1, bar2, Bar], list
   end
 end
