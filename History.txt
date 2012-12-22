@@ -1,3 +1,9 @@
+=== 1.0.1 / 2012-12-22
+
+* Post-apocalypse release. Lock down to methodphitamine-1.0.0 because 1.0.1 is
+  really broken.
+
+
 === 1.0.0 / 2009-06-18
 
 * Initial release
