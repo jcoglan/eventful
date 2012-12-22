@@ -1,6 +1,4 @@
-require "test/unit"
-require "eventful"
-require "set"
+require "spec_helper"
 
 class Foo
   include Eventful
@@ -19,31 +17,31 @@ class Bar
   include Eventful
 end
 
-class TestEventful < Test::Unit::TestCase
-  def setup
+describe Eventful do
+  before do
     [Foo, Bar, Eventful].each &it.delete_observers
   end
   
-  def test_named_events
+  it "fires events" do
     ayes, noes = 0, 0
     f = Foo.new
     f.on(:aye) { |foo, x| ayes += x }
     obs = f.on(:noe) { |foo, x| noes += x }
     
     f.fire(:aye, 1)
-    assert_equal 1, ayes
-    assert_equal 0, noes
+    ayes.should == 1
+    noes.should == 0
     f.fire(:noe, 3)
-    assert_equal 1, ayes
-    assert_equal 3, noes
+    ayes.should == 1
+    noes.should == 3
     
     f.delete_observer(obs)
     f.fire(:noe, 3)
-    assert_equal 1, ayes
-    assert_equal 3, noes
+    ayes.should == 1
+    noes.should == 3
   end
   
-  def test_chaining
+  it "allows chaining" do
     f = Foo.new
     f.on(:aye).bump! 2
     f.on(:noe).bump! -1
@@ -51,10 +49,10 @@ class TestEventful < Test::Unit::TestCase
     2.times { f.fire(:aye) }
     f.fire(:noe)
     
-    assert_equal 3, f.count
+    f.count.should == 3
   end
   
-  def test_bubbling
+  it "bubbles events" do
     bar1, bar2 = Bar.new, Bar.new
     list = []
     Bar.on(:aye) { |r| list << r }
@@ -62,24 +60,24 @@ class TestEventful < Test::Unit::TestCase
     Eventful.on(:noe) { |r| list << r }
     
     bar1.fire(:aye)
-    assert_equal  [bar1, bar1], list
+    list.should == [bar1, bar1]
     bar2.fire(:noe)
-    assert_equal  [bar1, bar1, bar2], list
+    list.should == [bar1, bar1, bar2]
     
     Bar.fire(:aye)
-    assert_equal  [bar1, bar1, bar2, Bar], list
+    list.should == [bar1, bar1, bar2, Bar]
     Bar.fire(:noe)
-    assert_equal  [bar1, bar1, bar2, Bar], list
+    list.should == [bar1, bar1, bar2, Bar]
   end
   
-  def test_chaining_on_bubble
+  it "allows chaining on bubble" do
     f1, f2 = Foo.new, Foo.new
     Foo.on(:aye).bump! 5
     f1.fire(:aye)
-    assert_equal 5, f1.count
-    assert_equal 0, f2.count
+    f1.count.should == 5
+    f2.count.should == 0
     f2.fire(:aye)
-    assert_equal 5, f1.count
-    assert_equal 5, f2.count
+    f1.count.should == 5
+    f2.count.should == 5
   end
 end

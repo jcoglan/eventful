@@ -1,5 +1,4 @@
 require 'observer'
-require 'rubygems'
 require 'methodphitamine'
 
 # Adds named event publishing capabilities to the class that includes it.
